@@ -2,7 +2,7 @@ from asyncio.windows_events import NULL
 import numpy as np
 import matplotlib.pyplot as plt
 
-class PathPlanner:
+class BSplinePlanner:
     def __init__(self):
         #BSpline
         self.BSpline_deg = 2  #degree
@@ -12,9 +12,6 @@ class PathPlanner:
         self.BSpoint = NULL   #x,y,z trajectory
         self.BSvel = NULL     #x,y,z velocity
         self.N = NULL         #basis function value
-
-        #polynominal
-        self.Polpoint = NULL
     
     def setBSplineParam(self, deg, P):
         self.BSpline_deg = deg
@@ -62,58 +59,3 @@ class PathPlanner:
                 self.BSpoint[0, j] += self.N[i, j]*self.BSpline_P[i][0]
                 self.BSpoint[1, j] += self.N[i, j]*self.BSpline_P[i][1]
                 self.BSpoint[2, j] += self.N[i, j]*self.BSpline_P[i][2]
-    
-    def fifthPolynominal(self, T):
-        #Tf is the task completion tima
-        self.Polpoint = np.zeros(len(T))
-
-        a3 = 10/(T[-1]**3)
-        a4 = -15/(T[-1]**4)
-        a5 = 6/(T[-1]**5)
-
-        for i in range(len(T)):
-            self.Polpoint[i] = a3*T[i]**3 + a4*T[i]**4 + a5*T[i]**5        
-        
-
-if __name__=="__main__":
-    planner = PathPlanner()
-    #define control point
-    P = np.array([[3,3,0], [6,1,0], [9,1,0], [9,5,0], [12,5,0], [12,8,0], [6,5,0], [12,0,0]])
-    #path planner Bspline set parameters
-    #degree must be larger than 2
-    planner.setBSplineParam(3, P)
-    #make time parameter alpha
-    Tf = 10
-    t = np.linspace(0, Tf, 10000)
-    planner.fifthPolynominal(t)
-    alpha = planner.Polpoint
-    #alpha = np.linspace(0, 1, 10000)
-    #path planning
-    planner.BSpline(alpha)
-
-    #visualize
-    plt.figure(1)
-    plt.plot(alpha, planner.N.T)
-    plt.xlabel('$\eta$')
-    plt.ylabel('$N(\eta)$')
-    plt.title('B-Spline Basis Function')
-    
-    plt.figure(2)
-    plt.plot(P[:, 0], P[:, 1], 'k')
-    plt.plot(P[:, 0], P[:, 1], 'ro')
-    plt.plot(planner.BSpoint[0, :], planner.BSpoint[1, :], 'b')
-    plt.xlabel('x')
-    plt.ylabel('y')
-    plt.title('B-Spline Curve')
-    plt.legend(['Control polygon', 'B-Spline Curve', 'Control Point'])
-    plt.show()
-
-    #微分が正しいか計算
-    dx = np.zeros(len(alpha))
-    dx[0] = 0.0
-    for i in range(1, len(alpha)):
-        dx[i] = (planner.BSpoint[0, i] - planner.BSpoint[0, i-1])/(t[i]-t[i-1])
-    plt.figure(3)
-    plt.plot(alpha, dx, label='nomal')
-    plt.legend()
-    plt.show()
