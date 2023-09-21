@@ -83,11 +83,11 @@ if __name__=="__main__":
     #degree must be larger than 2
     planner.setBSplineParam(3, P)
     #make time parameter alpha
-    Tf = 10
-    t = np.linspace(0, Tf, 10000)
-    planner.fifthPolynominal(t)
-    alpha = planner.Polpoint
-    #alpha = np.linspace(0, 1, 10000)
+    # Tf = 10
+    # t = np.linspace(0, Tf, 10000)
+    # planner.fifthPolynominal(t)
+    # alpha = planner.Polpoint
+    alpha = np.linspace(0, 1, 10000)
     #path planning
     planner.BSpline(alpha)
 
